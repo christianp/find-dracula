@@ -122,7 +122,7 @@ view model =
 
 table model =
     Html.table []
-    (  (List.map view_old_board (List.reverse model.history))
+    (  (List.map (view_old_board (found_them_all model)) (List.reverse model.history))
     ++ (if found_them_all model then [] else 
         [ view_current_board model.board
         , Html.tr 
@@ -179,18 +179,19 @@ finished_message model =
             [Html.text "Start again"]
         ]
 
-view_old_board : Board -> Html Msg
-view_old_board board =
+view_old_board : Bool -> Board -> Html Msg
+view_old_board finished board =
     Html.tr
         []
-        (List.map view_old_room (Array.toList board))
+        (List.map (view_old_room finished) (Array.toList board))
 
-view_old_room : (Room, Bool) -> Html Msg
-view_old_room (room, selected) = 
+view_old_room : Bool -> (Room, Bool) -> Html Msg
+view_old_room finished (room, selected) = 
     let
         symbol = case (room, selected) of
             (Occupied, True) -> "⚰️"
             (Unoccupied, True) -> "🦇"
-            (_, False) -> "🚪"
+            (Occupied, False) -> if finished then "🧛" else "🚪"
+            (Unoccupied, False) -> "🚪"
     in
         Html.td [] [Html.text symbol]
